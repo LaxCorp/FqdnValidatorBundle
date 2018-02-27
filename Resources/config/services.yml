@@ -1,0 +1,7 @@
+services:
+    fqdn_entity_validator:
+        class: LaxCorp\FqdnValidatorBundle\Validator\Constraints\FqdnEntityValidator
+        public: true
+        arguments: [ "@doctrine" ]
+        tags:
+            - { name: validator.constraint_validator, alias: fqdn_entity_validator }

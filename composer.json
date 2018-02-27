@@ -1,0 +1,27 @@
+{
+    "name": "laxcorp/fqdn-validator-bundle",
+    "description": "For Symfony's validator Fully Qualified Domain Name.",
+    "type": "symfony-bundle",
+    "homepage": "https://github.com/LaxCorp/FqdnValidatorBundle",
+    "license": "MIT",
+    "keywords": [
+        "Fully Qualified Domain Name validator"
+    ],
+    "authors": [
+        {
+            "name": "Lax Corp",
+            "email": "LaxCorp@mail.ru"
+        }
+    ],
+    "require": {
+        "php": "^7.0",
+        "symfony/symfony": "^3.0",
+        "doctrine/orm": "^2.5",
+        "doctrine/doctrine-bundle": "^1.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaxCorp\\FqdnValidatorBundle\\": ""
+        }
+    }
+}
