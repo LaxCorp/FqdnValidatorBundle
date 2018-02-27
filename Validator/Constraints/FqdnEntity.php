@@ -14,11 +14,6 @@ class FqdnEntity extends Constraint
     const NOT_UNIQUE_ERROR = '23bd9dbf-6b9b-41cd-a99e-4844bcf3077f';
 
     /**
-     * @var string
-     */
-    public $service = 'fqdn_entity_validator';
-
-    /**
      * @var null
      */
     public $em = null;
@@ -67,16 +62,6 @@ class FqdnEntity extends Constraint
     public function getRequiredOptions()
     {
         return ['fieldFqdn'];
-    }
-
-    /**
-     * The validator must be defined as a service with this name.
-     *
-     * @return string
-     */
-    public function validatedBy()
-    {
-        return $this->service;
     }
 
     /**

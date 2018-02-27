@@ -96,9 +96,9 @@ class FqdnEntityValidator extends ConstraintValidator
         $fqdnValue    = $class->reflFields[$fieldFqdn]->getValue($entity);
         $errorMessage = null;
 
-        $innValidator = new FqdnValidator();
+        $fqdnValidator = new FqdnValidator();
 
-        if ($fqdnValue !== null && !$innValidator->validate($fqdnValue, $errorMessage)) {
+        if ($fqdnValue !== null && !$fqdnValidator->validate($fqdnValue, $errorMessage)) {
 
             $this->context->buildViolation($errorMessage)
                 ->atPath($fieldFqdn)

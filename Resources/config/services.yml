@@ -1,7 +1,6 @@
 services:
-    fqdn_entity_validator:
-        class: LaxCorp\FqdnValidatorBundle\Validator\Constraints\FqdnEntityValidator
+    LaxCorp\FqdnValidatorBundle\Validator\Constraints\FqdnEntityValidator:
         public: true
-        arguments: [ "@doctrine" ]
+        autowire: true
         tags:
-            - { name: validator.constraint_validator, alias: fqdn_entity_validator }
+            - { name: validator.constraint_validator }
