@@ -765,7 +765,7 @@ class FqdnValidator
      */
     public static function isValid(string $value)
     {
-        $value = idn_to_ascii($value);
+        $value = idn_to_ascii($value, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
         if (preg_match('/^\./', $value)) {
             return false;
