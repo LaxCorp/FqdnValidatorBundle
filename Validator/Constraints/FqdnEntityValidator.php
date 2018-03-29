@@ -11,6 +11,7 @@ use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\ConstraintDefinitionException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @inheritdoc
@@ -19,6 +20,9 @@ class FqdnEntityValidator extends ConstraintValidator
 {
 
     const MESSAGE_ALREADY_USED = 'This value is already used.';
+    const DOMAIN_NOT_FOUND = 'fqdn.dns_user_domain_not_found';
+    const CNAME_NOT_EQUAL_CATALOG_CNAME = 'fqdn.user_domain_not_equal_catalog_cname';
+    const CATALOG_DOMAIN_NOT_FOUND = 'fqdn.dns_catalog_domain_not_found';
 
     /**
      * @var ManagerRegistry
@@ -26,11 +30,17 @@ class FqdnEntityValidator extends ConstraintValidator
     private $registry;
 
     /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    /**
      * @inheritdoc
      */
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, ContainerInterface $container)
     {
-        $this->registry = $registry;
+        $this->registry  = $registry;
+        $this->container = $container;
     }
 
     /**
@@ -95,6 +105,38 @@ class FqdnEntityValidator extends ConstraintValidator
 
         $fqdnValue    = $class->reflFields[$fieldFqdn]->getValue($entity);
         $errorMessage = null;
+
+        if ($fqdnValue !== null) {
+
+            $fqdnIp = gethostbyname($fqdnValue);
+
+            if ($fqdnIp === $fqdnValue) {
+                $errorMessage = $this::DOMAIN_NOT_FOUND;
+            }
+
+            $catalogCname = $this->container->getParameter('catalog_cname');
+
+            $catalogCnameIp = gethostbyname($catalogCname);
+
+            if ($catalogCnameIp === $catalogCname) {
+                $errorMessage = $this::CATALOG_DOMAIN_NOT_FOUND;
+            }
+
+            if ($fqdnIp !== $catalogCnameIp) {
+                $errorMessage = $this::CNAME_NOT_EQUAL_CATALOG_CNAME;
+            }
+
+            if ($errorMessage !== null) {
+                $this->context->buildViolation($errorMessage, ['%catalog_cname%' => $catalogCname])
+                    ->atPath($fieldFqdn)
+                    ->setParameter('{{ value }}', $this->formatWithIdentifiers($em, $class, $fqdnValue))
+                    ->setInvalidValue($fqdnValue)
+                    ->addViolation();
+
+                return;
+            }
+
+        }
 
         $fqdnValidator = new FqdnValidator();
 

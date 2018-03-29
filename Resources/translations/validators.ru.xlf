@@ -10,6 +10,18 @@
         <source>FQDN invalid</source>
         <target>Полное доменное имя введено неверно</target>
       </trans-unit>
+      <trans-unit id="fqdn.dns_user_domain_not_found">
+        <source>fqdn.dns_user_domain_not_found</source>
+        <target>Ваше доменное имя не зарегистрировано в DNS</target>
+      </trans-unit>
+      <trans-unit id="fqdn.user_domain_not_equal_catalog_cname">
+        <source>fqdn.user_domain_not_equal_catalog_cname</source>
+        <target>У Вашего домена отсутстует CNAME %catalog_cname%</target>
+      </trans-unit>
+      <trans-unit id="fqdn.dns_catalog_domain_not_found">
+        <source>fqdn.dns_catalog_domain_not_found</source>
+        <target>В данный момент сервер каталогов недоступен. Повторите попытку позже.</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

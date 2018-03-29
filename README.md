@@ -13,6 +13,11 @@ $bundles = [
 ]
 ```
 
+``` require parameters
+catalog_cname: 'catalog.domain.ru'
+```
+
+
 Use in Entity
 -------------
 ```
