@@ -22,6 +22,10 @@
         <source>fqdn.dns_catalog_domain_not_found</source>
         <target>В данный момент сервер каталогов недоступен. Повторите попытку позже.</target>
       </trans-unit>
+      <trans-unit id="fqdn.place_domain_prefix">
+        <source>fqdn.place_domain_prefix</source>
+        <target>Введите домен в формате: имя%catalog_domain_suffix%</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

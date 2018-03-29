@@ -23,6 +23,7 @@ class FqdnEntityValidator extends ConstraintValidator
     const DOMAIN_NOT_FOUND = 'fqdn.dns_user_domain_not_found';
     const CNAME_NOT_EQUAL_CATALOG_CNAME = 'fqdn.user_domain_not_equal_catalog_cname';
     const CATALOG_DOMAIN_NOT_FOUND = 'fqdn.dns_catalog_domain_not_found';
+    const PLACE_DOMAIN_PREFIX = 'fqdn.place_domain_prefix';
 
     /**
      * @var ManagerRegistry
@@ -106,28 +107,36 @@ class FqdnEntityValidator extends ConstraintValidator
         $fqdnValue    = $class->reflFields[$fieldFqdn]->getValue($entity);
         $errorMessage = null;
 
+        $catalogCname        = $this->container->getParameter('catalog_cname');
+        $catalogDomainSuffix = $this->container->getParameter('catalog_domain_suffix');
+
         if ($fqdnValue !== null) {
+
+            if ($fqdnValue === $catalogDomainSuffix) {
+                $errorMessage = $this::PLACE_DOMAIN_PREFIX;
+            }
 
             $fqdnIp = gethostbyname($fqdnValue);
 
-            if ($fqdnIp === $fqdnValue) {
+            if (!$errorMessage && $fqdnIp === $fqdnValue) {
                 $errorMessage = $this::DOMAIN_NOT_FOUND;
             }
 
-            $catalogCname = $this->container->getParameter('catalog_cname');
-
             $catalogCnameIp = gethostbyname($catalogCname);
 
-            if ($catalogCnameIp === $catalogCname) {
+            if (!$errorMessage && $catalogCnameIp === $catalogCname) {
                 $errorMessage = $this::CATALOG_DOMAIN_NOT_FOUND;
             }
 
-            if ($fqdnIp !== $catalogCnameIp) {
+            if (!$errorMessage && $fqdnIp !== $catalogCnameIp) {
                 $errorMessage = $this::CNAME_NOT_EQUAL_CATALOG_CNAME;
             }
 
             if ($errorMessage !== null) {
-                $this->context->buildViolation($errorMessage, ['%catalog_cname%' => $catalogCname])
+                $this->context->buildViolation($errorMessage, [
+                    '%catalog_cname%'         => $catalogCname,
+                    '%catalog_domain_suffix%' => $catalogDomainSuffix
+                ])
                     ->atPath($fieldFqdn)
                     ->setParameter('{{ value }}', $this->formatWithIdentifiers($em, $class, $fqdnValue))
                     ->setInvalidValue($fqdnValue)

@@ -15,6 +15,7 @@ $bundles = [
 
 ``` require parameters
 catalog_cname: 'catalog.domain.ru'
+catalog_domain_suffix: '.catalog.domain.ru'
 ```
 
 
