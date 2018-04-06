@@ -26,6 +26,10 @@
         <source>fqdn.place_domain_prefix</source>
         <target>Введите домен в формате: имя%catalog_domain_suffix%</target>
       </trans-unit>
+      <trans-unit id="fqdn.exceeded_subdomain_level">
+        <source>fqdn.exceeded_subdomain_level</source>
+        <target>На нашем домене разрешен только 1 поддомен</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -24,6 +24,7 @@ class FqdnEntityValidator extends ConstraintValidator
     const CNAME_NOT_EQUAL_CATALOG_CNAME = 'fqdn.user_domain_not_equal_catalog_cname';
     const CATALOG_DOMAIN_NOT_FOUND = 'fqdn.dns_catalog_domain_not_found';
     const PLACE_DOMAIN_PREFIX = 'fqdn.place_domain_prefix';
+    const EXCEEDED_SUBDOMAIN_LEVEL = 'fqdn.exceeded_subdomain_level';
 
     /**
      * @var ManagerRegistry
@@ -104,7 +105,7 @@ class FqdnEntityValidator extends ConstraintValidator
             ));
         }
 
-        $fqdnValue    = $class->reflFields[$fieldFqdn]->getValue($entity);
+        $fqdnValue    = strtolower($class->reflFields[$fieldFqdn]->getValue($entity));
         $errorMessage = null;
 
         $catalogCname        = $this->container->getParameter('catalog_cname');
@@ -114,6 +115,16 @@ class FqdnEntityValidator extends ConstraintValidator
 
             if ($fqdnValue === $catalogDomainSuffix) {
                 $errorMessage = $this::PLACE_DOMAIN_PREFIX;
+            }
+
+            $subdomain = str_replace($catalogDomainSuffix,'', $fqdnValue);
+            $subdomain = ($subdomain === $fqdnValue) ? false : $subdomain;
+
+            if (!$errorMessage && $subdomain) {
+                $subdomains = preg_split('/(\.)/', $subdomain, 2,PREG_SPLIT_NO_EMPTY);
+                if(is_iterable($subdomains) && count($subdomains) > 1){
+                    $errorMessage = $this::EXCEEDED_SUBDOMAIN_LEVEL;
+                }
             }
 
             $fqdnIp = gethostbyname($fqdnValue);
