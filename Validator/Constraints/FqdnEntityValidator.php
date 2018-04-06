@@ -105,57 +105,60 @@ class FqdnEntityValidator extends ConstraintValidator
             ));
         }
 
-        $fqdnValue    = strtolower($class->reflFields[$fieldFqdn]->getValue($entity));
+        $fqdnValue = $class->reflFields[$fieldFqdn]->getValue($entity);
+
+        if (empty($fqdnValue)) {
+            return;
+        }
+
         $errorMessage = null;
 
         $catalogCname        = $this->container->getParameter('catalog_cname');
         $catalogDomainSuffix = $this->container->getParameter('catalog_domain_suffix');
 
-        if ($fqdnValue !== null) {
+        $fqdnValue = mb_strtolower($fqdnValue);
 
-            if ($fqdnValue === $catalogDomainSuffix) {
-                $errorMessage = $this::PLACE_DOMAIN_PREFIX;
+        if ($fqdnValue === $catalogDomainSuffix) {
+            $errorMessage = $this::PLACE_DOMAIN_PREFIX;
+        }
+
+        $subdomain = str_replace($catalogDomainSuffix, '', $fqdnValue);
+        $subdomain = ($subdomain === $fqdnValue) ? false : $subdomain;
+
+        if (!$errorMessage && $subdomain) {
+            $subdomains = preg_split('/(\.)/', $subdomain, 2, PREG_SPLIT_NO_EMPTY);
+            if (is_iterable($subdomains) && count($subdomains) > 1) {
+                $errorMessage = $this::EXCEEDED_SUBDOMAIN_LEVEL;
             }
+        }
 
-            $subdomain = str_replace($catalogDomainSuffix,'', $fqdnValue);
-            $subdomain = ($subdomain === $fqdnValue) ? false : $subdomain;
+        $fqdnIp = gethostbyname($fqdnValue);
 
-            if (!$errorMessage && $subdomain) {
-                $subdomains = preg_split('/(\.)/', $subdomain, 2,PREG_SPLIT_NO_EMPTY);
-                if(is_iterable($subdomains) && count($subdomains) > 1){
-                    $errorMessage = $this::EXCEEDED_SUBDOMAIN_LEVEL;
-                }
-            }
+        if (!$errorMessage && $fqdnIp === $fqdnValue) {
+            $errorMessage = $this::DOMAIN_NOT_FOUND;
+        }
 
-            $fqdnIp = gethostbyname($fqdnValue);
+        $catalogCnameIp = gethostbyname($catalogCname);
 
-            if (!$errorMessage && $fqdnIp === $fqdnValue) {
-                $errorMessage = $this::DOMAIN_NOT_FOUND;
-            }
+        if (!$errorMessage && $catalogCnameIp === $catalogCname) {
+            $errorMessage = $this::CATALOG_DOMAIN_NOT_FOUND;
+        }
 
-            $catalogCnameIp = gethostbyname($catalogCname);
+        if (!$errorMessage && $fqdnIp !== $catalogCnameIp) {
+            $errorMessage = $this::CNAME_NOT_EQUAL_CATALOG_CNAME;
+        }
 
-            if (!$errorMessage && $catalogCnameIp === $catalogCname) {
-                $errorMessage = $this::CATALOG_DOMAIN_NOT_FOUND;
-            }
+        if ($errorMessage !== null) {
+            $this->context->buildViolation($errorMessage, [
+                '%catalog_cname%'         => $catalogCname,
+                '%catalog_domain_suffix%' => $catalogDomainSuffix
+            ])
+                ->atPath($fieldFqdn)
+                ->setParameter('{{ value }}', $this->formatWithIdentifiers($em, $class, $fqdnValue))
+                ->setInvalidValue($fqdnValue)
+                ->addViolation();
 
-            if (!$errorMessage && $fqdnIp !== $catalogCnameIp) {
-                $errorMessage = $this::CNAME_NOT_EQUAL_CATALOG_CNAME;
-            }
-
-            if ($errorMessage !== null) {
-                $this->context->buildViolation($errorMessage, [
-                    '%catalog_cname%'         => $catalogCname,
-                    '%catalog_domain_suffix%' => $catalogDomainSuffix
-                ])
-                    ->atPath($fieldFqdn)
-                    ->setParameter('{{ value }}', $this->formatWithIdentifiers($em, $class, $fqdnValue))
-                    ->setInvalidValue($fqdnValue)
-                    ->addViolation();
-
-                return;
-            }
-
+            return;
         }
 
         $fqdnValidator = new FqdnValidator();
