@@ -132,7 +132,7 @@ class FqdnEntityValidator extends ConstraintValidator
             }
         }
 
-        $fqdnIp = gethostbyname($fqdnValue);
+        $fqdnIp = gethostbyname(idn_to_ascii($fqdnValue, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46));
 
         if (!$errorMessage && $fqdnIp === $fqdnValue) {
             $errorMessage = $this::DOMAIN_NOT_FOUND;
