@@ -2,5 +2,15 @@ services:
     LaxCorp\FqdnValidatorBundle\Validator\Constraints\FqdnEntityValidator:
         public: true
         autowire: true
+        arguments:
+            $reservedNames:
+                - 'api'
+                - 'test'
+                - 'check'
+                - 'help'
+                - 'admin'
+                - 'administrator'
+                - 'administration'
+                - 'support'
         tags:
             - { name: validator.constraint_validator }

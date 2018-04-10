@@ -25,6 +25,7 @@ class FqdnEntityValidator extends ConstraintValidator
     const CATALOG_DOMAIN_NOT_FOUND = 'fqdn.dns_catalog_domain_not_found';
     const PLACE_DOMAIN_PREFIX = 'fqdn.place_domain_prefix';
     const EXCEEDED_SUBDOMAIN_LEVEL = 'fqdn.exceeded_subdomain_level';
+    const MESSAGE_NAME_RESERVED = 'fqdn.name_reserved';
 
     /**
      * @var ManagerRegistry
@@ -37,13 +38,20 @@ class FqdnEntityValidator extends ConstraintValidator
     private $container;
 
     /**
+     * @var array
+     */
+    private $reservedNames;
+
+    /**
      * @inheritdoc
      */
-    public function __construct(ManagerRegistry $registry, ContainerInterface $container)
+    public function __construct(ManagerRegistry $registry, ContainerInterface $container, array $reservedNames = [])
     {
-        $this->registry  = $registry;
-        $this->container = $container;
+        $this->registry      = $registry;
+        $this->container     = $container;
+        $this->reservedNames = $reservedNames;
     }
+
 
     /**
      * @param object     $entity
@@ -129,6 +137,12 @@ class FqdnEntityValidator extends ConstraintValidator
             $subdomains = preg_split('/(\.)/', $subdomain, 2, PREG_SPLIT_NO_EMPTY);
             if (is_iterable($subdomains) && count($subdomains) > 1) {
                 $errorMessage = $this::EXCEEDED_SUBDOMAIN_LEVEL;
+            }
+        }
+
+        if (!$errorMessage && $subdomain) {
+            if (is_iterable($this->reservedNames) && in_array($subdomain, $this->reservedNames)) {
+                $errorMessage = $this::MESSAGE_NAME_RESERVED;
             }
         }
 

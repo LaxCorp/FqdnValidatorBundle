@@ -30,6 +30,10 @@
         <source>fqdn.exceeded_subdomain_level</source>
         <target>На нашем домене разрешен только 1 поддомен</target>
       </trans-unit>
+      <trans-unit id="fqdn.name_reserved">
+        <source>fqdn.name_reserved</source>
+        <target>Данное имя зарезервировано, введите другое</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>
