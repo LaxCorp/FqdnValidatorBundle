@@ -142,7 +142,7 @@ class FqdnEntityValidator extends ConstraintValidator
         $subdomain      = ($subdomain === $fqdnValue) ? false : $subdomain;
         $subdomainAscii = idn_to_ascii($subdomain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
-        if (!$errorMessage && $subdomain && mb_strlen($subdomainAscii) > 32) {
+        if (!$errorMessage && $subdomain && (!$subdomainAscii || mb_strlen($subdomainAscii) > 32)) {
             $errorMessage = $this::EXCEEDED_SUBDOMAIN_LENGTH;
         }
 
