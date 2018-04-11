@@ -12,5 +12,6 @@ services:
                 - 'administrator'
                 - 'administration'
                 - 'support'
+                - 'stage'
         tags:
             - { name: validator.constraint_validator }

@@ -24,8 +24,11 @@ class FqdnEntityValidator extends ConstraintValidator
     const CNAME_NOT_EQUAL_CATALOG_CNAME = 'fqdn.user_domain_not_equal_catalog_cname';
     const CATALOG_DOMAIN_NOT_FOUND = 'fqdn.dns_catalog_domain_not_found';
     const PLACE_DOMAIN_PREFIX = 'fqdn.place_domain_prefix';
+    const EXCEEDED_DOMAIN_LENGTH = 'fqdn.exceeded_domain_lenght';
     const EXCEEDED_SUBDOMAIN_LEVEL = 'fqdn.exceeded_subdomain_level';
+    const EXCEEDED_SUBDOMAIN_LENGTH = 'fqdn.exceeded_subdomain_lenght';
     const MESSAGE_NAME_RESERVED = 'fqdn.name_reserved';
+
 
     /**
      * @var ManagerRegistry
@@ -125,13 +128,23 @@ class FqdnEntityValidator extends ConstraintValidator
         $catalogDomainSuffix = $this->container->getParameter('catalog_domain_suffix');
 
         $fqdnValue = mb_strtolower($fqdnValue);
+        $fqdnAscii = idn_to_ascii($fqdnValue, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
 
         if ($fqdnValue === $catalogDomainSuffix) {
             $errorMessage = $this::PLACE_DOMAIN_PREFIX;
         }
 
-        $subdomain = str_replace($catalogDomainSuffix, '', $fqdnValue);
-        $subdomain = ($subdomain === $fqdnValue) ? false : $subdomain;
+        if (mb_strlen($fqdnAscii) > 255) {
+            $errorMessage = $this::EXCEEDED_DOMAIN_LENGTH;
+        }
+
+        $subdomain      = str_replace($catalogDomainSuffix, '', $fqdnValue);
+        $subdomain      = ($subdomain === $fqdnValue) ? false : $subdomain;
+        $subdomainAscii = idn_to_ascii($subdomain, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46);
+
+        if (!$errorMessage && $subdomain && mb_strlen($subdomainAscii) > 32) {
+            $errorMessage = $this::EXCEEDED_SUBDOMAIN_LENGTH;
+        }
 
         if (!$errorMessage && $subdomain) {
             $subdomains = preg_split('/(\.)/', $subdomain, 2, PREG_SPLIT_NO_EMPTY);
@@ -146,7 +159,7 @@ class FqdnEntityValidator extends ConstraintValidator
             }
         }
 
-        $fqdnIp = gethostbyname(idn_to_ascii($fqdnValue, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46));
+        $fqdnIp = gethostbyname($fqdnAscii);
 
         if (!$errorMessage && $fqdnIp === $fqdnValue) {
             $errorMessage = $this::DOMAIN_NOT_FOUND;
