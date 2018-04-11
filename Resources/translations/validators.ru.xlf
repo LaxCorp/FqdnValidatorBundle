@@ -32,11 +32,11 @@
       </trans-unit>
       <trans-unit id="fqdn.exceeded_domain_lenght">
         <source>fqdn.exceeded_domain_lenght</source>
-        <target>Превышена длинна домена</target>
+        <target>Превышена длина домена</target>
       </trans-unit>
       <trans-unit id="fqdn.exceeded_subdomain_lenght">
         <source>fqdn.exceeded_subdomain_lenght</source>
-        <target>Превышена длинна субдомена</target>
+        <target>Превышена длина субдомена</target>
       </trans-unit>
       <trans-unit id="fqdn.name_reserved">
         <source>fqdn.name_reserved</source>
