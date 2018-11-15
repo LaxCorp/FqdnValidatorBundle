@@ -4,6 +4,7 @@
     "type": "symfony-bundle",
     "homepage": "https://github.com/LaxCorp/FqdnValidatorBundle",
     "license": "MIT",
+    "minimum-stability": "stable",
     "keywords": [
         "Fully Qualified Domain Name validator"
     ],
