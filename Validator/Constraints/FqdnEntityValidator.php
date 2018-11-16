@@ -159,9 +159,17 @@ class FqdnEntityValidator extends ConstraintValidator
             }
         }
 
-        $fqdnIp = gethostbyname($fqdnAscii);
+        /*
+         * So if you do a lookup for nonexistentdomainname.be
+         * your server may return the ip for nonexistentdomainname.be.yourhostname.com, which is the server-ip.
+         * To avoid this behaviour, just add a trailing dot to the domainname;
+         * i.e. gethostbyname('nonexistentdomainname.be.')
+         * */
+        $fqdnAsciiDot = $fqdnAscii . '.';
 
-        if (!$errorMessage && $fqdnIp === $fqdnValue) {
+        $fqdnIp = gethostbyname($fqdnAsciiDot);
+
+        if (!$errorMessage && $fqdnIp === $fqdnAsciiDot) {
             $errorMessage = $this::DOMAIN_NOT_FOUND;
         }
 
